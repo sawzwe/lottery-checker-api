@@ -27,8 +27,12 @@ app = FastAPI(
     redoc_url="/redoc",
     servers=[
         {
-            "url": os.getenv("VERCEL_URL", "http://localhost:8000"),
-            "description": "Production/Development server"
+            "url": os.getenv("API_URL", "https://lottery-checker-api-lime.vercel.app"),
+            "description": "Production server"
+        },
+        {
+            "url": os.getenv("DEV_API_URL", "http://localhost:8000"),
+            "description": "Development server"
         }
     ],
     tags_metadata=[
