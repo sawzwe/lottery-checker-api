@@ -27,8 +27,8 @@ app = FastAPI(
     redoc_url="/redoc",
     servers=[
         {
-            "url": "http://localhost:8000",
-            "description": "Development server"
+            "url": os.getenv("VERCEL_URL", "http://localhost:8000"),
+            "description": "Production/Development server"
         }
     ],
     tags_metadata=[
@@ -44,11 +44,12 @@ app = FastAPI(
 )
 
 # Add CORS middleware
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Configure this for production
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -131,7 +132,7 @@ async def health_check():
         from app.core.database import get_supabase_client
         client = get_supabase_client()
         # Simple query to test connection
-        client.table("lottery_draws").select("count", count="exact").execute()
+        client.table("lottery_draws").select("*").limit(1).execute()
         db_status = "Connected"
         db_healthy = True
     except Exception as e:
