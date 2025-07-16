@@ -235,7 +235,7 @@ The script includes robust error handling:
 - Skips malformed records and continues processing
 - Validates Supabase connection before starting
 - Provides detailed error messages for troubleshooting
-- Maintains upload statistics for failed records
+- Maintains upload statistics for failed records!
 
 ## Environment Variables
 
