@@ -48,6 +48,7 @@ class APIResponse(BaseModel):
     """Standard API response wrapper"""
     success: bool = True
     message: str = "OK"
+    client: Optional[str] = None  # add client here
     data: Optional[dict] = None
     error: Optional[str] = None
 
@@ -57,4 +58,5 @@ class PaginatedResponse(BaseModel):
     total: int
     page: int
     size: int
-    pages: int 
+    pages: int
+    client: Optional[str] = None  # add client here

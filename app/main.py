@@ -4,11 +4,35 @@ from fastapi.responses import JSONResponse
 import os
 from dotenv import load_dotenv
 
+# import ratelimiting libraries
+from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
+import redis.asyncio as redis  # aioredis v2+ replaced by redis-py async
+from fastapi import Depends
+from contextlib import asynccontextmanager
+
 from .routes.lottery_routes import router as lottery_router
 from .models.lottery import APIResponse
 
 # Load environment variables
 load_dotenv()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Initialize Redis + FastAPI Limiter
+    redis_url = os.getenv("UPSTASH_REDIS_URL")
+    if not redis_url:
+        raise RuntimeError("UPSTASH_REDIS_URL environment variable is not set")
+
+    redis_client = redis.from_url(
+        redis_url, encoding="utf-8", decode_responses=True)
+    await FastAPILimiter.init(redis_client)
+
+    yield  # App is running here
+
+    # Shutdown: (Optional cleanup here if needed)
+    await redis_client.close()
 
 # Create FastAPI app
 app = FastAPI(
@@ -44,7 +68,8 @@ app = FastAPI(
             "name": "system",
             "description": "System endpoints",
         },
-    ]
+    ],
+    lifespan=lifespan
 )
 
 # Add CORS middleware

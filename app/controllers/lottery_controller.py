@@ -21,7 +21,8 @@ class LotteryController:
     async def get_all_lottery_draws(
         self, 
         page: int = Query(1, ge=1, description="Page number"),
-        size: int = Query(50, ge=1, le=100, description="Items per page")
+        size: int = Query(50, ge=1, le=100, description="Items per page"),
+        client_name: str = None
     ) -> APIResponse:
         """Get all lottery draws with pagination"""
         try:
@@ -30,6 +31,7 @@ class LotteryController:
             return APIResponse(
                 success=True,
                 message=f"Retrieved {len(result.items)} lottery draws",
+                client=client_name,  #  added here the client name
                 data={
                     "draws": [draw.dict() for draw in result.items],
                     "pagination": {
@@ -42,9 +44,10 @@ class LotteryController:
             )
             
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error retrieving lottery draws: {str(e)}")
-    
-    async def get_lottery_draw_by_date(self, draw_date: date) -> APIResponse:
+            raise HTTPException(
+                status_code=500, detail=f"Error retrieving lottery draws: {str(e)}")
+
+    async def get_lottery_draw_by_date(self, draw_date: date, client_name: Optional[str] = None) -> APIResponse:
         """Get specific lottery draw by date"""
         try:
             draw = await self.lottery_service.get_draw_by_date(draw_date)
@@ -58,15 +61,17 @@ class LotteryController:
             return APIResponse(
                 success=True,
                 message=f"Lottery draw found for {draw_date}",
+                client=client_name,
                 data={"draw": draw.dict()}
             )
             
         except HTTPException:
             raise
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error retrieving lottery draw: {str(e)}")
-    
-    async def get_latest_lottery_draw(self) -> APIResponse:
+            raise HTTPException(
+                status_code=500, detail=f"Error retrieving lottery draw: {str(e)}")
+
+    async def get_latest_lottery_draw(self, client_name: Optional[str] = None) -> APIResponse:
         """Get the most recent lottery draw"""
         try:
             draw = await self.lottery_service.get_latest_draw()
@@ -80,15 +85,17 @@ class LotteryController:
             return APIResponse(
                 success=True,
                 message="Latest lottery draw retrieved",
+                client=client_name,
                 data={"draw": draw.dict()}
             )
             
         except HTTPException:
             raise
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error retrieving latest lottery draw: {str(e)}")
-    
-    async def check_lottery_numbers(self, request: LotteryCheckRequest) -> APIResponse:
+            raise HTTPException(
+                status_code=500, detail=f"Error retrieving latest lottery draw: {str(e)}")
+
+    async def check_lottery_numbers(self, request: LotteryCheckRequest, client_name: Optional[str] = None) -> APIResponse:
         """Check lottery numbers for winnings"""
         try:
             # Validate numbers format
@@ -119,6 +126,7 @@ class LotteryController:
             return APIResponse(
                 success=True,
                 message=f"Checked {len(request.numbers)} numbers. Found {len(winning_results)} winners.",
+                client=client_name,
                 data=response_data.dict()
             )
             
@@ -132,7 +140,8 @@ class LotteryController:
         start_date: Optional[date] = Query(None, description="Start date filter"),
         end_date: Optional[date] = Query(None, description="End date filter"),
         page: int = Query(1, ge=1, description="Page number"),
-        size: int = Query(50, ge=1, le=100, description="Items per page")
+        size: int = Query(50, ge=1, le=100, description="Items per page"),
+        client_name: Optional[str] = None
     ) -> APIResponse:
         """Search lottery draws with date filters"""
         try:
@@ -152,6 +161,7 @@ class LotteryController:
             return APIResponse(
                 success=True,
                 message=f"Found {len(filtered_items)} lottery draws",
+                client=client_name,
                 data={
                     "draws": [draw.dict() for draw in filtered_items],
                     "filters": {

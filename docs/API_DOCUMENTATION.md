@@ -155,3 +155,49 @@ All endpoints return responses in this format:
 1. Start API: `python run_api.py`
 2. Visit docs: http://localhost:8000/docs
 3. Test endpoint: `curl http://localhost:8000/health` 
+
+# Lucas Document Update
+# API Key Generation & Storage
+
+## Generate API Keys
+Generate a unique API key for each client.
+
+**Script:** `key_generator.py`
+
+**Example Output:**
+Generated API keys:
+Name: client1, Key: b2e8f03e2fdf1c88a7d7c2f2e7e4c8e2...
+Name: client2, Key: a4f87c1b9d8a4eebcfa5e3a9d1a7f22b...
+Name: client3, Key: 8c1e2d4b7a9f0c5d3e6b1a2f4e8d7c9b...
+
+yaml
+ကူးယူရန်
+ပြင်ဆင်ရန်
+
+---
+
+## Store API Keys
+Save the generated keys in **Supabase** in a table named `api_keys`.
+
+| id  | api_key                              | client_name | active | created_at          |
+|-----|--------------------------------------|-------------|--------|---------------------|
+| 1   | b2e8f03e2fdf1c88a7d7c2f2e7e4c8e2    | client1     | ✅     | 2025-07-17 12:00:00 |
+
+You can query this table in your code to validate incoming requests.
+
+---
+
+## Validate API Key
+On each request to your API, validate the key by checking the `X-API-Key` header.
+
+**Header:**
+X-API-Key: <client-api-key>
+
+vbnet
+ကူးယူရန်
+ပြင်ဆင်ရန်
+
+If the key is invalid or missing, the server responds with:
+
+- `401 Unauthorized`
+
