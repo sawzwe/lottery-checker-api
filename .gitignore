@@ -114,3 +114,4 @@ settings.local.py
 # Test results
 test-results/
 .test_results/ 
+/.venv
